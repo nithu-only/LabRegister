@@ -2,7 +2,6 @@
  * routes/studentRoutes.js
  * -----------------------------------------------------------------------------
  * POST /register        -> Kiosk: create student + auto-open a login session.
- * POST /                -> Admin: add student (no auto-login).  [auth]
  * GET  /                -> List / search / filter.              [auth]
  * GET  /:id             -> Get one.                             [auth]
  * PUT  /:id             -> Edit.                                [auth]
@@ -31,16 +30,6 @@ router.post(
   asyncHandler((req, res) => {
     const result = sessionController.registerAndLogin(req.body);
     res.status(result.status || 200).json({ success: result.ok, ...result });
-  })
-);
-
-// Admin: add a student.
-router.post(
-  '/',
-  requireAuth,
-  validateRegisterNumber('registerNumber'),
-  asyncHandler((req, res) => {
-    res.status(201).json({ success: true, student: studentController.create(req) });
   })
 );
 

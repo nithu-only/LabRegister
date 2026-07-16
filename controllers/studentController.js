@@ -37,26 +37,6 @@ function get(req) {
   return student;
 }
 
-function create(req) {
-  const registerNumber = sanitizeRegisterNumber(req.body.registerNumber);
-  const name = sanitizeName(req.body.name);
-  const department = sanitizeText(req.body.department, 60);
-  const year = sanitizeYear(req.body.year);
-
-  if (!registerNumber) throw Object.assign(new Error('Invalid register number.'), { status: 400 });
-  if (!name) throw Object.assign(new Error('Invalid name.'), { status: 400 });
-  if (!department) throw Object.assign(new Error('Invalid department.'), { status: 400 });
-  if (!year) throw Object.assign(new Error('Invalid year.'), { status: 400 });
-
-  if (studentModel.findByRegisterNumber(registerNumber)) {
-    throw Object.assign(new Error('Register number already exists.'), { status: 409 });
-  }
-
-  const student = studentModel.create({ registerNumber, name, department, year });
-  writeLog('event', 'Student added', { registerNumber });
-  return student;
-}
-
 function update(req) {
   const id = req.params.id;
   if (!studentModel.findById(id)) {
@@ -118,4 +98,4 @@ function publicSearch(q) {
   return studentModel.publicSearch(q, 8);
 }
 
-module.exports = { list, get, create, update, remove, bulkImport, publicSearch };
+module.exports = { list, get, update, remove, bulkImport, publicSearch };

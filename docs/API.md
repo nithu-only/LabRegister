@@ -55,10 +55,12 @@ Login as admin.
   - `403` → `{ "success": false, "error": "Self-registration is disabled. Contact the lab admin." }` (policy off)
 - **Notes:** Creates the student if unknown, then opens an `ACTIVE` session. Honours `allowSelfRegistration` (see Settings).
 
-### 2.2 `POST /api/students/`  *(admin add)*
-- **Auth:** [auth]
-- **Request:** `{ "registerNumber": "1SU20CS002", "name": "..." , "department": "CSE", "year": "2nd Year" }`
-- **Responses:** `201` → `{ "success": true, "student": {...} }`; `409` if duplicate register number.
+### 2.2 `POST /api/students/`  *(removed — admin add disabled)*
+- This endpoint was **removed**. Admins can no longer manually add a student.
+  New students are created only via kiosk self-registration
+  (`POST /api/students/register`) or bulk Excel import (`POST /api/students/import`).
+  Admins may still **edit** (`PUT /api/students/:id`) and **delete**
+  (`DELETE /api/students/:id`) existing records.
 
 ### 2.3 `GET /api/students/`  *(list / search / filter)*
 - **Auth:** [auth]
@@ -217,7 +219,7 @@ Login as admin.
 | Code | Meaning |
 |------|---------|
 | 200 | OK |
-| 201 | Created (admin add student) |
+| 201 | Created (kiosk self-registration) |
 | 400 | Validation / bad input |
 | 401 | Not authenticated |
 | 404 | Not found |

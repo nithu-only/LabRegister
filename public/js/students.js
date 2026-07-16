@@ -84,19 +84,7 @@
     if (next) next.onclick = () => { if (page < lastPages) { page++; load(); } };
   }
 
-  /* ---------- Add / Edit ---------- */
-  function openAdd() {
-    document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-user-plus"></i> Add Student';
-    document.getElementById('f_id').value = '';
-    document.getElementById('f_registerNumber').value = '';
-    document.getElementById('f_registerNumber').disabled = false;
-    document.getElementById('f_name').value = '';
-    document.getElementById('f_department').selectedIndex = 0;
-    document.getElementById('f_year').selectedIndex = 0;
-    formModal.classList.add('show');
-    setTimeout(() => document.getElementById('f_registerNumber').focus(), 50);
-  }
-
+  /* ---------- Edit ---------- */
   async function openEdit(id) {
     try {
       const s = await API.get('/students/' + id);
@@ -115,7 +103,6 @@
 
   function closeForm() { formModal.classList.remove('show'); }
 
-  document.getElementById('addBtn').onclick = openAdd;
   document.getElementById('formCancel').onclick = closeForm;
 
   tbody.addEventListener('click', (e) => {
@@ -147,9 +134,8 @@
     };
     if (!payload.registerNumber || !payload.name) { toast('Register number and name are required', 'warn'); return; }
     try {
-      if (id) await API.put('/students/' + id, payload);
-      else await API.post('/students', payload);
-      toast(id ? 'Student updated' : 'Student added', 'success');
+      await API.put('/students/' + id, payload);
+      toast('Student updated', 'success');
       closeForm();
       load();
     } catch (err) {
