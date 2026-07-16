@@ -228,7 +228,12 @@ kbd {
 .modal-overlay.show { display: flex; animation: fade 0.2s ease; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 .modal {
-  position: relative; width: min(480px, 92vw); padding: 30px;
+  /* Override Bootstrap's `.modal { display: none }` (admin pages load Bootstrap
+     from CDN). Without this the dialog box is invisible even when the overlay
+     is shown, so Add/Edit forms can't be used. */
+  display: block;
+  position: relative; width: min(480px, 92vw); height: auto; max-height: 90vh;
+  overflow-y: auto; padding: 30px;
   animation: pop 0.25s ease; background: rgba(255, 255, 255, 0.97); color: var(--text);
   border: 1px solid rgba(255, 255, 255, 0.9); border-radius: var(--card-radius);
 }
