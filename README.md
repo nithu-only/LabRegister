@@ -1,5 +1,7 @@
 # Lab Register — Offline-first Lab Attendance System
 
+> 📖 **Full documentation:** [docs/GUIDE.md](docs/GUIDE.md) — install, kiosk & admin usage, config, API summary, troubleshooting.
+
 A kiosk-style **Lab Register Management System** for the Srinivas University
 computer laboratory. Students tap their Register Number (USN) at the door; the
 system automatically **logs them in** or **logs them out**. An admin panel
