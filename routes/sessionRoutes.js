@@ -3,7 +3,7 @@
  * -----------------------------------------------------------------------------
  * POST /transaction            -> Core kiosk action (login/logout/register).
  * GET  /                       -> List sessions (filters/pagination). [auth]
- * GET  /active                 -> Students currently inside.          [auth]
+ * GET  /active                 -> Students currently inside.          [public]
  * POST /:uuid/force-logout     -> Admin force logout.                 [auth]
  * GET  /export                 -> Excel/CSV/PDF export.               [auth]
  * -----------------------------------------------------------------------------
@@ -53,7 +53,9 @@ router.get('/', requireAuth, asyncHandler(async (req, res) => {
   res.json({ success: true, rows, total, page, limit, pages: Math.ceil(total / limit), range: { dateFrom, dateTo } });
 }));
 
-router.get('/active', requireAuth, asyncHandler(async (req, res) => {
+// Live "who is inside" board — public so the kiosk home can show it without an
+// admin login (the same data the admin "Active Now" page displays).
+router.get('/active', asyncHandler(async (req, res) => {
   res.json({ success: true, rows: sessionController.activeList() });
 }));
 
