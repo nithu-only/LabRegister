@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Register — Srinivas University</title>
+  <link rel="stylesheet" href="/vendor/font-awesome/css/all.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- Header -->
+    <header class="glass header">
+      <div class="brand">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i></div>
+        <div>
+          <h1 id="universityName">Srinivas University</h1>
+          <p id="labName">Computer Laboratory Register</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="home-clock">
+          <div class="time">--:--:--</div>
+          <div class="date">—</div>
+        </div>
+        <div class="net-col">
+          <span id="netPill" class="net-pill offline"><span class="dot"></span><span id="netText">Offline</span></span>
+          <div class="sync-meta" id="syncMeta">Checking connection…</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero: entry card + stat cards -->
+    <section class="hero">
+      <main class="glass card" id="entryCard">
+        <h2>Lab Entry / Exit</h2>
+        <p class="sub">Search your Register Number (USN) and press <kbd>Continue</kbd>.</p>
+
+        <div class="inputs">
+          <div class="usn-search">
+            <input id="usn" class="usn-input" type="text" inputmode="text" autocomplete="off"
+                   placeholder="Search register number / name" maxlength="20" aria-label="Register Number" />
+            <div class="suggestions" id="suggestions"></div>
+          </div>
+          <input id="systemNo" class="sys-input" type="text" autocomplete="off" list="systemList"
+                 placeholder="System No." maxlength="20" aria-label="System Number" />
+          <datalist id="systemList"></datalist>
+          <button id="continueBtn" class="btn-continue"><i class="fa-solid fa-arrow-right"></i> Continue</button>
+        </div>
+
+        <p class="login-as hidden" id="loginAs"></p>
+        <p class="hint">Tip: Just type and hit <kbd>Enter</kbd>. Don't forget the system number.</p>
+      </main>
+
+      <aside class="stats">
+        <div class="glass stat">
+          <div class="big" id="insideCount">0</div>
+          <p>Students Inside</p>
+        </div>
+        <div class="glass stat">
+          <div class="big" id="availableCount">28</div>
+          <p>Available Systems</p>
+        </div>
+        <div class="glass stat">
+          <div class="big">28</div>
+          <p>Total PCs</p>
+        </div>
+      </aside>
+    </section>
+
+    <!-- Active in Lab board -->
+    <section class="glass board">
+      <h2><i class="fa-solid fa-person-walking"></i> Active in Lab</h2>
+      <div class="board-list users" id="insideList"></div>
+    </section>
+
+    <!-- Inside panel (kiosk session view, hidden by default) -->
+    <section class="glass inside-panel hidden" id="insidePanel">
+      <h2>You are inside the lab</h2>
+      <p class="sub"><b id="insideName">—</b> · System <b id="insideSys">—</b></p>
+      <div class="timer" id="insideTimer">0s</div>
+      <button class="btn btn-danger btn-lg" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      <div class="inside-duration" id="insideDuration"></div>
+    </section>
+
+  </div>
+
+  <!-- Registration Modal -->
+  <div class="modal-overlay" id="registerModal">
+    <div class="modal glass">
+      <button type="button" class="modal-close" data-close aria-label="Close">&times;</button>
+      <h3><i class="fa-solid fa-user-plus"></i> New Student</h3>
+      <p class="sub">Register number <b id="regUsn">—</b> not found. Please complete your details.</p>
+      <form id="registerForm">
+        <input type="hidden" id="reg_registerNumber" />
+        <div class="field">
+          <label>Register Number</label>
+          <input id="reg_registerNumberShow" type="text" disabled />
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input id="reg_name" type="text" maxlength="100" required autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Department</label>
+          <select id="reg_department" required></select>
+        </div>
+        <div class="field">
+          <label>Year</label>
+          <select id="reg_year" required></select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="regCancel"><i class="fa-solid fa-xmark"></i> Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save &amp; Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal glass text-center">
+      <button type="button" class="modal-close" data-close aria-label="Close">&times;</button>
+      <div id="resultIcon" class="result-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <div id="resultName" class="result-name"></div>
+      <div id="resultMsg" class="result-msg"></div>
+      <div id="resultDuration" class="result-duration hidden"></div>
+      <div id="resultCountdown" class="result-countdown"></div>
+    </div>
+  </div>
+
+  <!-- Already-logged-in confirmation -->
+  <div class="modal-overlay" id="alreadyInModal">
+    <div class="modal glass text-center">
+      <button type="button" class="modal-close" data-close aria-label="Close">&times;</button>
+      <div class="result-icon result-logout"><i class="fa-solid fa-circle-info"></i></div>
+      <div id="alreadyInName" class="result-name"></div>
+      <div class="result-msg">You are already logged in to the lab.</div>
+      <div class="result-sub">Do you want to log out?</div>
+      <div class="modal-actions center">
+        <button type="button" class="btn btn-ghost" id="alreadyInNo"><i class="fa-solid fa-check"></i> No, keep me in</button>
+        <button type="button" class="btn btn-danger" id="alreadyInYes"><i class="fa-solid fa-right-from-bracket"></i> Yes, log out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script src="/js/common.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

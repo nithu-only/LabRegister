@@ -1,0 +1,34 @@
+/* ============================================================================
+   auth.css — Admin login screen
+   ============================================================================ */
+.auth-body { min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+.auth-card { width: min(420px, 94vw); padding: 38px 34px; text-align: center; }
+
+/* Render the login card as a solid, crisp panel instead of relying on
+   backdrop-filter. On some browsers a backdrop-filtered card over a
+   background-attachment:fixed body fails to paint and shows only a blurred
+   screen — hiding the actual login form. A solid background avoids that. */
+.auth-card.glass {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: #ffffff;
+}
+[data-theme="dark"] .auth-card.glass { background: #0f1b33; }
+.auth-logo {
+  width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 16px; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--blue-700), var(--blue-400)); color: #fff; font-size: 30px;
+  box-shadow: 0 10px 26px rgba(37,99,235,.45);
+}
+.auth-card h1 { font-size: 22px; margin: 0 0 4px; }
+.auth-card .sub { color: var(--text-soft); margin-bottom: 24px; font-size: 14px; }
+.auth-card .field { text-align: left; margin-bottom: 16px; }
+.auth-card .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.auth-card .field input {
+  width: 100%; padding: 13px 14px; border-radius: 12px; border: 1.5px solid var(--blue-300);
+  background: rgba(255,255,255,.9); color: var(--text); font-size: 15px; outline: none;
+}
+[data-theme="dark"] .auth-card .field input { background: rgba(10,20,40,.6); }
+.auth-card .field input:focus { border-color: var(--blue-600); box-shadow: 0 0 0 4px rgba(59,130,246,.15); }
+.auth-card .btn { width: 100%; margin-top: 6px; }
+.auth-error { color: var(--danger); font-size: 13px; min-height: 18px; margin-top: 10px; }
+.auth-back { display: block; margin-top: 18px; font-size: 13px; color: var(--text-soft); }
