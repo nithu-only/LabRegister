@@ -50,8 +50,12 @@ app.use(
 );
 
 // ---------------- Static assets ----------------
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/views', express.static(path.join(__dirname, 'views')));
+// no-cache so the browser always revalidates JS/CSS/HTML. Without this, a
+// returned edit (e.g. restoring the admin "Add Student" button) could be
+// masked by a stale cached script and appear to "do nothing".
+const noCache = { setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') };
+app.use(express.static(path.join(__dirname, 'public'), noCache));
+app.use('/views', express.static(path.join(__dirname, 'views'), noCache));
 
 const VIEWS = path.join(__dirname, 'views');
 
