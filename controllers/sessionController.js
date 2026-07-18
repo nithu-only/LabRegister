@@ -76,6 +76,21 @@ function processTransaction(registerNumberRaw, systemNumberRaw) {
     return { ok: false, status: 400, error: 'System number is required to log in.' };
   }
 
+  // Check if this system number already has an active session (another user)
+  const systemInUse = sessionModel.findActiveBySystemNumber(systemNumber);
+  if (systemInUse) {
+    writeLog('event', 'System number in use by another student', { registerNumber, systemNumber, otherStudent: systemInUse.registerNumber });
+    return {
+      ok: false,
+      status: 409,
+      error: `System ${systemNumber} is already in use. Please log out the other user or use a different system.`,
+      conflict: {
+        systemNumber,
+        occupiedBy: systemInUse.registerNumber,
+      },
+    };
+  }
+
   // Login
   const loginTime = new Date().toISOString();
   const created = sessionModel.create({
