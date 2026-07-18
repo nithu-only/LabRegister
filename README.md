@@ -17,10 +17,12 @@ inside" view, settings, and backups.
 ## Features
 
 - **Kiosk home** — type a register number → auto login / logout / register.
+- **System number enforcement** — only one student per system at a time (prevents multiple logins on same PC).
+- **Auto-logout** — automatically logs out all students at end of day (default 4:50 PM, configurable).
 - **Admin auth** — session-based login, password change, light/dark theme.
 - **Students** — list/search/filter, add/edit/delete, Excel/CSV import.
-- **Sessions** — full history with filters, pagination, Excel/CSV/PDF export.
-- **Reports** — attendance roll-up (days present, visits, hours) + CSV export.
+- **Sessions** — full history with filters, pagination, Excel/CSV/PDF export (includes system number).
+- **Reports** — attendance roll-up (days present, visits, hours) + CSV export with system info.
 - **Active Now** — live view of students currently inside, with force-logout.
 - **Dashboard** — stat cards + 5 analytics charts (Chart.js).
 - **Backup** — nightly SQLite backup (cron) + manual backup / download / restore.
@@ -82,6 +84,7 @@ Default admin credentials (from `.env`): **admin / admin123** — change them in
 | `SYNC_INTERVAL_SECONDS` | `30` | Background cloud-sync interval |
 | `BACKUP_TIME` | `23:55` | Nightly backup time (24h) |
 | `BACKUP_KEEP` | `30` | Backups to retain |
+| `AUTO_LOGOUT_TIME` | `16:50` | Auto-logout time for forgotten sessions (24h format) |
 | `INTERNET_CHECK_URL` | google probe | Connectivity check |
 | `DEFAULT_THEME` | `light` | Initial theme |
 
