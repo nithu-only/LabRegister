@@ -31,6 +31,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 const log = require('./services/logService');
 const syncWorker = require('./sync/syncWorker');
 const backupService = require('./services/backupService');
+const autoLogoutService = require('./services/autoLogoutService');
 
 const app = express();
 
@@ -97,6 +98,9 @@ async function start() {
   // Background sync scheduler.
   syncWorker.start();
 
+  // Auto-logout scheduler (closes all active sessions at configured time).
+  autoLogoutService.start(env.AUTO_LOGOUT_TIME);
+
   // Nightly backup via cron.
   const [bh, bm] = (env.BACKUP_TIME || '23:55').split(':').map(Number);
   const cronExpr = `${bm} ${bh} * * *`;
@@ -124,6 +128,7 @@ async function start() {
 function shutdown(signal) {
   log.event(`Application stop (${signal})`);
   syncWorker.stop();
+  autoLogoutService.stop();
   process.exit(0);
 }
 process.on('SIGINT', () => shutdown('SIGINT'));
