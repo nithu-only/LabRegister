@@ -31,6 +31,8 @@ const env = {
   BACKUP_TIME: process.env.BACKUP_TIME || '23:55',
   BACKUP_KEEP: parseInt(process.env.BACKUP_KEEP, 10) || 30,
 
+  AUTO_LOGOUT_TIME: process.env.AUTO_LOGOUT_TIME || '16:50',
+
   INTERNET_CHECK_URL:
     process.env.INTERNET_CHECK_URL || 'https://www.google.com/generated_404_probe',
 
