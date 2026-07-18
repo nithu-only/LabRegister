@@ -145,7 +145,15 @@ async function submitUsn() {
   continueBtn.disabled = true;
   try {
     const res = await API.post('/sessions/transaction', { registerNumber: raw, systemNumber: sys });
-    if (!res.success) { toast(res.error || res.message || 'Error', 'error'); return; }
+    if (!res.success) {
+      // Check if system is already in use by another student
+      if (res.conflict) {
+        toast(`⚠️ System ${sys} is already in use by another student. Please use a different system or wait for them to log out.`, 'error');
+      } else {
+        toast(res.error || res.message || 'Error', 'error');
+      }
+      return;
+    }
 
     if (res.action === 'register') {
       openRegister(res.registerNumber);
@@ -161,7 +169,12 @@ async function submitUsn() {
       resetEntry();
     }
   } catch (e) {
-    toast(e.message || 'Something went wrong', 'error');
+    // Check if it's a 409 conflict error (system already in use)
+    if (e.status === 409 && e.data?.conflict) {
+      toast(`⚠️ System ${sys} is already in use by another student. Please use a different system or wait for them to log out.`, 'error');
+    } else {
+      toast(e.message || 'Something went wrong', 'error');
+    }
   } finally {
     continueBtn.disabled = false;
   }

@@ -28,6 +28,13 @@ const sessionModel = {
       .get(registerNumber);
   },
 
+  /** Find the open (ACTIVE) session on a system number, if any. */
+  findActiveBySystemNumber(systemNumber) {
+    return db
+      .prepare(`SELECT * FROM sessions WHERE systemNumber = ? AND status = 'ACTIVE'`)
+      .get(systemNumber);
+  },
+
   /** Complete an active session (logout). duration in seconds. */
   complete(uuid, { logoutTime, duration }) {
     db.prepare(
@@ -149,6 +156,37 @@ const sessionModel = {
       .prepare(`SELECT MAX(lastSyncedAt) AS t FROM sessions WHERE syncStatus = 1`)
       .get();
     return row.t || null;
+  },
+
+  /** Bulk insert sessions from cloud restore. Each item: full session row from MongoDB.
+   *  Uses INSERT OR IGNORE so existing uuids are skipped (idempotent). */
+  bulkInsertFromCloud(items) {
+    const insert = db.prepare(
+      `INSERT OR IGNORE INTO sessions
+       (uuid, registerNumber, loginTime, logoutTime, duration, date, systemNumber, status, syncStatus, lastSyncedAt, createdAt)
+       VALUES (@uuid, @registerNumber, @loginTime, @logoutTime, @duration, @date, @systemNumber, @status, @syncStatus, @lastSyncedAt, @createdAt)`
+    );
+    const tx = db.transaction((list) => {
+      let inserted = 0;
+      for (const it of list) {
+        const res = insert.run({
+          uuid: it.uuid,
+          registerNumber: it.registerNumber,
+          loginTime: it.loginTime,
+          logoutTime: it.logoutTime || null,
+          duration: it.duration || 0,
+          date: it.date,
+          systemNumber: it.systemNumber || null,
+          status: it.status,
+          syncStatus: 1, // already synced — came from cloud
+          lastSyncedAt: it.lastSyncedAt || null,
+          createdAt: it.createdAt,
+        });
+        if (res.changes) inserted++;
+      }
+      return { inserted, ignored: list.length - inserted };
+    });
+    return tx(items);
   },
 
   /** Aggregate helpers used by reports & charts. */
