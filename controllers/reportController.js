@@ -97,6 +97,7 @@ function exportSessions(req) {
     name: s.name,
     department: s.department,
     year: s.year,
+    systemNumber: s.systemNumber || '',
     loginTime: s.loginTime,
     logoutTime: s.logoutTime || '',
     duration: s.duration ? formatDuration(s.duration) : '',
