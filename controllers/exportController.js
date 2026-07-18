@@ -16,6 +16,7 @@ const COLUMNS = [
   { header: 'Name', key: 'name' },
   { header: 'Department', key: 'department' },
   { header: 'Year', key: 'year' },
+  { header: 'System No', key: 'systemNumber' },
   { header: 'Login', key: 'loginTime' },
   { header: 'Logout', key: 'logoutTime' },
   { header: 'Duration', key: 'duration' },
@@ -49,7 +50,7 @@ async function exportSessions(req, res) {
     doc.moveDown();
 
     const tableTop = doc.y;
-    const colWidths = [90, 130, 90, 70, 140, 140, 70, 70, 80];
+    const colWidths = [90, 130, 90, 70, 80, 130, 130, 70, 70, 80];
     let x = 30;
     doc.font('Helvetica-Bold').fontSize(8);
     COLUMNS.forEach((c, i) => { doc.text(c.header, x, tableTop, { width: colWidths[i] }); x += colWidths[i]; });
