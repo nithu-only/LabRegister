@@ -7,6 +7,7 @@ const btn = document.getElementById('loginBtn');
   try {
     const b = await API.get('/settings/public');
     if (b.labName) document.getElementById('brandSub').textContent = b.labName;
+    if (b.universityName) document.getElementById('authUniName').textContent = b.universityName;
   } catch (e) {}
 })();
 
