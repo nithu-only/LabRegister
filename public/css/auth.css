@@ -16,7 +16,7 @@
 [data-theme="dark"] .auth-card.glass { background: #0f1b33; }
 .auth-logo {
   width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 16px; display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--blue-700), var(--blue-400)); color: #fff; font-size: 30px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff; font-size: 30px;
   box-shadow: 0 10px 26px rgba(37,99,235,.45);
 }
 .auth-card h1 { font-size: 22px; margin: 0 0 4px; }
