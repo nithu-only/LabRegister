@@ -64,5 +64,48 @@
     }
   });
 
+  // --- Cloud Restore section ---
+  const mongoStatusEl = document.getElementById('mongoStatus');
+  const pullBtn = document.getElementById('pullNow');
+
+  async function checkMongoStatus() {
+    try {
+      const r = await API.get('/sync/status');
+      if (r.mongoConnected) {
+        mongoStatusEl.innerHTML = '<i class="fa-solid fa-circle" style="color:var(--green,#22c55e)"></i> MongoDB connected — ready to restore';
+        pullBtn.disabled = false;
+      } else if (r.mongoConfigured) {
+        mongoStatusEl.innerHTML = '<i class="fa-solid fa-circle" style="color:var(--yellow,#eab308)"></i> MongoDB configured but not connected';
+        pullBtn.disabled = true;
+      } else {
+        mongoStatusEl.innerHTML = '<i class="fa-solid fa-circle" style="color:var(--red,#ef4444)"></i> MongoDB not configured';
+        pullBtn.disabled = true;
+      }
+    } catch (e) {
+      mongoStatusEl.innerHTML = '<i class="fa-solid fa-circle" style="color:var(--red,#ef4444)"></i> Could not check status';
+      pullBtn.disabled = true;
+    }
+  }
+
+  pullBtn.onclick = async () => {
+    if (!confirm('Restore students and sessions from MongoDB Atlas? Existing records will not be duplicated.')) return;
+    pullBtn.disabled = true;
+    pullBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Restoring…';
+    try {
+      const r = await API.post('/sync/pull');
+      if (r.error) {
+        toast('Restore failed: ' + r.error, 'error');
+      } else {
+        toast(`Restored ${r.studentsRestored} students and ${r.sessionsRestored} sessions from cloud.`, 'success');
+      }
+    } catch (err) {
+      toast(err.message || 'Restore failed', 'error');
+    } finally {
+      pullBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Restore from Cloud';
+      checkMongoStatus();
+    }
+  };
+
+  await checkMongoStatus();
   await load();
 })();

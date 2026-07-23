@@ -10,6 +10,7 @@
  * -----------------------------------------------------------------------------
  */
 const mongoose = require('mongoose');
+const dns = require('dns');
 const env = require('./env');
 const { writeLog } = require('../services/logService');
 
@@ -25,6 +26,12 @@ async function connectMongo() {
     return false;
   }
   try {
+    // Fix for Windows DNS: the default resolver (127.0.0.1) often can't resolve
+    // SRV records needed by mongodb+srv:// URIs. Use Google DNS as fallback.
+    if (env.MONGODB_URI.startsWith('mongodb+srv://')) {
+      dns.setServers(['8.8.8.8', '8.8.4.4']);
+    }
+
     mongoose.set('strictQuery', true);
     await mongoose.connect(env.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,

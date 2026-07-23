@@ -93,6 +93,7 @@
     document.getElementById('f_name').value = '';
     document.getElementById('f_department').selectedIndex = 0;
     document.getElementById('f_year').selectedIndex = 0;
+    hideRegHint();
     formModal.classList.add('show');
     setTimeout(() => document.getElementById('f_registerNumber').focus(), 50);
   }
@@ -170,12 +171,44 @@
       if (r.duplicates) parts.push(`${r.duplicates} duplicate(s) skipped`);
       if (r.skipped) parts.push(`${r.skipped} invalid row(s)`);
       toast(parts.join(', '), 'success');
+      page = 1;
       load();
     } catch (err) {
       toast(err.message || 'Import failed', 'error');
     } finally {
       e.target.value = '';
     }
+  });
+
+  /* ---------- Live register-number duplicate check ---------- */
+  const regHint = document.getElementById('regHint');
+  function hideRegHint() { if (regHint) { regHint.style.display = 'none'; regHint.textContent = ''; } }
+  function showRegHint(msg, ok) {
+    if (!regHint) return;
+    regHint.textContent = msg;
+    regHint.style.display = 'block';
+    regHint.style.color = ok ? 'var(--success,#27ae60)' : 'var(--danger,#e74c3c)';
+  }
+
+  let regCheckTimer;
+  document.getElementById('f_registerNumber').addEventListener('input', () => {
+    clearTimeout(regCheckTimer);
+    const val = document.getElementById('f_registerNumber').value.trim().toUpperCase();
+    // In edit mode the field is disabled — skip.
+    if (document.getElementById('f_registerNumber').disabled) { hideRegHint(); return; }
+    if (val.length < 4) { hideRegHint(); return; }
+    regCheckTimer = setTimeout(async () => {
+      try {
+        const r = await API.get('/students/check-reg/' + encodeURIComponent(val));
+        if (r.exists) {
+          showRegHint('⚠️ This register number already exists', false);
+        } else {
+          showRegHint('✓ Available', true);
+        }
+      } catch (e) {
+        hideRegHint();
+      }
+    }, 400);
   });
 
   /* ---------- Wire filters ---------- */

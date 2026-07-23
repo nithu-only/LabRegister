@@ -98,7 +98,8 @@ function bulkImport(rows) {
   const cleaned = [];
   const errors = [];
   for (const r of rows) {
-    const registerNumber = sanitizeRegisterNumber(r.registerNumber || r['Register Number'] || r.USN);
+    // Flexible column mapping — supports various casing/aliases.
+    const registerNumber = sanitizeRegisterNumber(r.registerNumber || r.RegisterNumber || r['Register Number'] || r.USN);
     const name = sanitizeName(r.name || r.Name);
     const department = sanitizeText(r.department || r.Department, 60);
     const year = sanitizeYear(r.year || r.Year);
@@ -118,4 +119,10 @@ function publicSearch(q) {
   return studentModel.publicSearch(q, 8);
 }
 
-module.exports = { list, get, create, update, remove, bulkImport, publicSearch };
+/** Check if a register number already exists (for live duplicate warning). */
+function findByRegisterNumber(reg) {
+  if (!reg) return null;
+  return studentModel.findByRegisterNumber(reg);
+}
+
+module.exports = { list, get, create, update, remove, bulkImport, publicSearch, findByRegisterNumber };

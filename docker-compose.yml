@@ -1,0 +1,115 @@
+services:
+  # Lab Register Application
+  lab-register:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lab-register-app
+    ports:
+      - "3000:3000"
+    environment:
+      # Application
+      PORT: 3000
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-to-a-long-random-string}
+      SECURE_COOKIE: ${SECURE_COOKIE:-false}
+
+      # Branding
+      UNIVERSITY_NAME: ${UNIVERSITY_NAME:-Srinivas University}
+      LAB_NAME: ${LAB_NAME:-Computer Laboratory Register}
+
+      # Admin Credentials
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+
+      # SQLite Database
+      SQLITE_DB_PATH: ./data/labregister.db
+
+      # MongoDB Atlas (Cloud Backup) - Leave empty for offline-only mode
+      MONGODB_URI: ${MONGODB_URI:-}
+
+      # Sync Configuration
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-30}
+
+      # Backup Configuration
+      BACKUP_TIME: ${BACKUP_TIME:-23:55}
+      BACKUP_KEEP: ${BACKUP_KEEP:-30}
+
+      # Network Check
+      INTERNET_CHECK_URL: ${INTERNET_CHECK_URL:-https://www.google.com/generated_404_probe}
+
+      # Theme
+      DEFAULT_THEME: ${DEFAULT_THEME:-light}
+
+    volumes:
+      # Persist SQLite database
+      - lab-data:/app/data
+      # Persist backups
+      - lab-backups:/app/backups
+      # Persist logs
+      - lab-logs:/app/logs
+
+    restart: unless-stopped
+
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits (optional - uncomment to enable)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1'
+    #       memory: 512M
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 256M
+
+    networks:
+      - lab-register-network
+
+    # Log configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: MongoDB Atlas connection helper
+  # Uncomment this section if you want to run MongoDB locally for development
+  # mongodb:
+  #   image: mongo:8.0-alpine
+  #   container_name: lab-register-mongodb
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin123}
+  #     MONGO_INITDB_DATABASE: labregister
+  #   volumes:
+  #     - mongo-data:/data/db
+  #   restart: unless-stopped
+  #   networks:
+  #     - lab-register-network
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+
+volumes:
+  lab-data:
+    driver: local
+  lab-backups:
+    driver: local
+  lab-logs:
+    driver: local
+  # mongo-data:
+  #   driver: local
+
+networks:
+  lab-register-network:
+    driver: bridge

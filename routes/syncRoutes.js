@@ -18,5 +18,9 @@ router.post('/now', requireAuth, asyncHandler(async (req, res) => {
   const result = await syncService.syncOnce();
   res.json({ success: true, ...result });
 }));
+router.post('/pull', requireAuth, asyncHandler(async (req, res) => {
+  const result = await syncService.pullFromCloud();
+  res.json({ success: true, ...result });
+}));
 
 module.exports = router;

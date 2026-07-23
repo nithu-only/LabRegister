@@ -53,6 +53,13 @@ router.get('/public-search', asyncHandler(async (req, res) => {
   res.json({ success: true, rows: studentController.publicSearch(req.query.q || '') });
 }));
 
+// Quick duplicate check — returns { exists: true/false }.
+router.get('/check-reg/:reg', requireAuth, asyncHandler((req, res) => {
+  const reg = (req.params.reg || '').trim().toUpperCase();
+  const existing = studentController.findByRegisterNumber(reg);
+  res.json({ success: true, exists: !!existing });
+}));
+
 router.get('/:id', requireAuth, asyncHandler((req, res) => {
   res.json(studentController.get(req));
 }));
@@ -73,9 +80,14 @@ router.post(
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded.' });
     const XLSX = require('xlsx');
     const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
-    const sheet = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-    const result = studentController.bulkImport(rows);
+    // Collect rows from ALL sheets (not just the first one).
+    const allRows = [];
+    for (const name of wb.SheetNames) {
+      const sheet = wb.Sheets[name];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+      allRows.push(...rows);
+    }
+    const result = studentController.bulkImport(allRows);
     res.json({ success: true, ...result });
   })
 );

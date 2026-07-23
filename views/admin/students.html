@@ -54,7 +54,9 @@
       <h3 id="formTitle"><i class="fa-solid fa-user-plus"></i> Add Student</h3>
       <form id="form">
         <input type="hidden" id="f_id" />
-        <div class="field"><label>Register Number</label><input id="f_registerNumber" maxlength="20" required /></div>
+        <div class="field"><label>Register Number</label><input id="f_registerNumber" maxlength="20" required />
+          <div class="field-hint" id="regHint" style="display:none;color:var(--danger,#e74c3c);font-size:0.85rem;margin-top:4px"></div>
+        </div>
         <div class="field"><label>Full Name</label><input id="f_name" maxlength="100" required /></div>
         <div class="field"><label>Department</label><select id="f_department" required></select></div>
         <div class="field"><label>Year</label><select id="f_year" required></select></div>

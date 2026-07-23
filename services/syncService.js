@@ -113,6 +113,63 @@ async function syncOnce() {
   return result;
 }
 
+/**
+ * Pull all students and sessions from MongoDB back into SQLite.
+ * Safe to run multiple times — existing records are skipped (idempotent).
+ * @returns {Promise<{studentsRestored:number, sessionsRestored:number, error:string|null}>}
+ */
+async function pullFromCloud() {
+  const result = { studentsRestored: 0, sessionsRestored: 0, error: null };
+  try {
+    if (!isMongoConnected()) {
+      result.error = 'mongo-not-connected';
+      writeLog('warn', 'Pull from cloud skipped — MongoDB not connected.');
+      return result;
+    }
+
+    // 1. Pull students
+    const cloudStudents = await StudentBackup.find().lean();
+    if (cloudStudents.length) {
+      const { inserted } = studentModel.bulkInsert(
+        cloudStudents.map((s) => ({
+          registerNumber: s.registerNumber,
+          name: s.name,
+          department: s.department,
+          year: s.year,
+        }))
+      );
+      result.studentsRestored = inserted;
+    }
+
+    // 2. Pull sessions
+    const cloudSessions = await SessionBackup.find().lean();
+    if (cloudSessions.length) {
+      const { inserted } = sessionModel.bulkInsertFromCloud(
+        cloudSessions.map((s) => ({
+          uuid: s.uuid,
+          registerNumber: s.registerNumber,
+          loginTime: s.loginTime ? new Date(s.loginTime).toISOString() : null,
+          logoutTime: s.logoutTime ? new Date(s.logoutTime).toISOString() : null,
+          duration: s.duration || 0,
+          date: s.date,
+          systemNumber: s.systemNumber || null,
+          status: s.status,
+          syncStatus: 1,
+          lastSyncedAt: s.lastSyncedAt ? new Date(s.lastSyncedAt).toISOString() : null,
+          createdAt: s.createdAt ? new Date(s.createdAt).toISOString() : new Date().toISOString(),
+        }))
+      );
+      result.sessionsRestored = inserted;
+    }
+
+    writeLog('event', 'Pull from cloud completed', result);
+  } catch (err) {
+    result.error = err.message;
+    writeLog('error', 'Pull from cloud failed', { error: err.message });
+  }
+  return result;
+}
+
 /** Returns a lightweight status snapshot for the UI. */
 async function status() {
   return {
@@ -126,4 +183,4 @@ async function status() {
   };
 }
 
-module.exports = { syncOnce, status };
+module.exports = { syncOnce, pullFromCloud, status };

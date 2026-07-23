@@ -39,6 +39,18 @@
         </table>
       </div>
     </section>
+
+    <section class="panel glass">
+      <div class="panel-head">
+        <h3><i class="fa-solid fa-cloud-arrow-down"></i> Cloud Restore</h3>
+      </div>
+      <p class="sub" style="color:var(--text-soft)">Pull students and sessions from MongoDB Atlas back into the local database. Existing records are skipped — safe to run multiple times.</p>
+
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <span id="mongoStatus" style="font-size:0.9rem;color:var(--text-soft)"><i class="fa-solid fa-spinner fa-spin"></i> Checking…</span>
+        <button class="btn btn-primary btn-sm" id="pullNow" disabled><i class="fa-solid fa-cloud-arrow-down"></i> Restore from Cloud</button>
+      </div>
+    </section>
   </main>
 
   <div class="toast-wrap" id="toastWrap"></div>
